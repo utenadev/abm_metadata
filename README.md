@@ -52,11 +52,46 @@ python3 extract_test.py
 
 デフォルトで `https://abema.tv/video/title/189-85`（機械じかけのマリー）をテストします。
 
-## スクリプト解説
+## 使用方法
 
-### 主要スクリプト
+### コマンドライン引数による実行（推奨）
 
-- **`extract_yaml_output.py`**: メインプログラム（完全版）
+**主なスクリプト `abema_extractor.py`**
+
+コマンドライン引数でURLを指定して実行できます：
+
+```bash
+# デフォルト（瑠璃の宝石）
+python3 abema_extractor.py
+
+# 指定したURLから抽出
+python3 abema_extractor.py --url https://abema.tv/video/title/26-249
+
+# 別の作品をテスト
+python3 abema_extractor.py --url https://abema.tv/video/title/189-85
+
+# 出力ファイル名を指定
+python3 abema_extractor.py --url https://abema.tv/video/title/189-85 --output mary.yaml
+
+# 高速実行（あらすじを取得しない）
+python3 abema_extractor.py --url https://abema.tv/video/title/26-249 --no-synopsis
+
+# ヘルプ
+python3 abema_extractor.py --help
+```
+
+### パラメータ
+
+| オプション | 短縮形 | 説明 | デフォルト |
+|-----------|--------|------|-----------|
+| `--url` | `-u` | AbemaTVのアニメ・ドラマのURL | 瑠璃の宝石 |
+| `--output` | `-o` | 出力ファイル名 | episodes_output.yaml |
+| `--no-synopsis` | - | あらすじを取得しない（高速） | False |
+| `--help` | `-h` | ヘルプを表示 | - |
+
+### スクリプト解説（古いスクリプト）
+
+- **`extract_yaml_output.py`**: 旧メインプログラム（完全版）
   - シリーズ情報・全エピソード・あらすじを抽出
   - YAML形式で出力 `episodes_output.yaml`
 
