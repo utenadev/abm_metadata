@@ -1,0 +1,4 @@
+# AbemaTV Episode Extractor Requirements
+
+# Core dependencies
+PyYAML==6.0.3
