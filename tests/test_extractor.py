@@ -4,7 +4,7 @@
 """
 
 import pytest
-from abema_metadata.extractor import AbemaMetadataExtractor
+from abema_metadata.extractor import AbemaMetadataExtractor, InvalidURLError
 from abema_metadata.models import SeriesMetadata, EpisodeMetadata
 
 
@@ -48,6 +48,20 @@ def test_data_models():
     assert series.extraction_date == "2024-02-20"
     assert len(series.episodes) == 1
     assert series.episodes[0] == episode
+
+
+def test_invalid_url():
+    """無効なURL形式のテスト"""
+    extractor = AbemaMetadataExtractor()
+    
+    # abema.tv 以外のURL
+    with pytest.raises(InvalidURLError) as excinfo:
+        extractor.fetch_page("https://google.com")
+    assert "無効なURL形式" in str(excinfo.value)
+
+    # 不正なスキーム
+    with pytest.raises(InvalidURLError):
+        extractor.fetch_page("ftp://abema.tv/video/title/123")
 
 
 def test_fetch_page_basic():

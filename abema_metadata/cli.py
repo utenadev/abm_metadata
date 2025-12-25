@@ -6,7 +6,7 @@ AbemaTV メタ情報抽出ツールのコマンドラインインターフェー
 import argparse
 import yaml
 import sys
-from .extractor import AbemaMetadataExtractor
+from .extractor import AbemaMetadataExtractor, AbemaExtractorError
 
 
 def main():
@@ -75,11 +75,18 @@ def main():
         print(f"総話数    : {len(metadata.episodes)}")
         print(f"あらすじ  : {'取得済み' if not args.no_synopsis else 'なし'}")
 
+    except AbemaExtractorError as e:
+        # 既知のエラー（URL無効、ネットワークエラー等）
+        print(f"\nエラーが発生しました: {e}")
+        sys.exit(1)
+
     except KeyboardInterrupt:
         print("\nユーザーによって中断されました。")
         sys.exit(1)
+        
     except Exception as e:
-        print(f"エラーが発生しました: {e}")
+        # 予期せぬエラー
+        print(f"\n予期せぬエラーが発生しました: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)
