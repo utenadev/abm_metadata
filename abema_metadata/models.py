@@ -1,26 +1,25 @@
 # -*- coding: utf-8 -*-
 """
-Data models for AbemaTV metadata extraction
+AbemaTVのメタ情報抽出に使用するデータモデル定義
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional
-from datetime import datetime
 
 
 @dataclass
 class EpisodeMetadata:
-    """エピソードのメタ情報"""
-    number: int
-    title: str
-    synopsis: Optional[str] = None
-    url: Optional[str] = None
+    """各エピソードのメタ情報を保持するクラス"""
+    number: int                 # 話数
+    title: str                 # サブタイトル
+    synopsis: Optional[str] = None  # あらすじ
+    url: Optional[str] = None       # エピソードの個別URL
 
 
 @dataclass
 class SeriesMetadata:
-    """シリーズのメタ情報"""
-    title: str
-    source_url: str
-    extraction_date: str
-    episodes: List[EpisodeMetadata]
+    """シリーズ全体のメタ情報を保持するクラス"""
+    title: str                          # シリーズタイトル
+    source_url: str                     # 抽出元のシリーズURL
+    extraction_date: str                # 抽出実施日 (YYYY-MM-DD)
+    episodes: List[EpisodeMetadata] = field(default_factory=list)  # 全エピソードのリスト

@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Environments
+.venv/
+venv/
+ENV/
+
+# Output files
+episodes_output.yaml
+*.yaml
+
+# IDEs and Tools
+.claude/
+.vscode/
+.idea/

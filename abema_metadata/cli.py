@@ -1,46 +1,47 @@
 # -*- coding: utf-8 -*-
 """
-Command-line interface for AbemaTV metadata extraction
+AbemaTV メタ情報抽出ツールのコマンドラインインターフェース
 """
 
 import argparse
 import yaml
 import sys
 from .extractor import AbemaMetadataExtractor
-from .models import SeriesMetadata
 
 
 def main():
+    """メインのエントリーポイント"""
     parser = argparse.ArgumentParser(
-        description='AbemaTVから動画ファイル用メタ情報を抽出',
+        description='AbemaTVからシリーズ情報を抽出し、YAML形式で出力します。',
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
 
     parser.add_argument(
         'url',
-        help='AbemaTVのアニメ/ドラマページURL'
+        help='AbemaTVのシリーズページURL (例: https://abema.tv/video/title/189-85)'
     )
 
     parser.add_argument(
         '-o', '--output',
-        default='metadata.yaml',
-        help='出力YAMLファイル名 (デフォルト: metadata.yaml)'
+        default='episodes_output.yaml',
+        help='出力先YAMLファイル名 (デフォルト: episodes_output.yaml)'
     )
 
     parser.add_argument(
         '--no-synopsis',
         action='store_true',
-        help='あらすじを取得しない（高速処理）'
+        help='あらすじの取得をスキップ（高速に取得したい場合）'
     )
 
     args = parser.parse_args()
 
     try:
-        # メタ情報抽出
+        # メタ情報抽出の実行
+        print(f"抽出を開始します: {args.url}")
         extractor = AbemaMetadataExtractor()
         metadata = extractor.extract_all_metadata(args.url, not args.no_synopsis)
 
-        # YAML出力
+        # 出力用データの構築
         output_data = {
             'series_title': metadata.title,
             'source_url': metadata.source_url,
@@ -50,13 +51,14 @@ def main():
                 {
                     'episode_number': ep.number,
                     'title': ep.title,
-                    'synopsis': ep.synopsis or 'あらすじなし'
+                    'synopsis': ep.synopsis or 'あらすじなし',
+                    'url': ep.url
                 }
                 for ep in metadata.episodes
             ]
         }
 
-        # ファイルに保存
+        # YAMLファイルとして保存
         with open(args.output, 'w', encoding='utf-8') as f:
             yaml.dump(
                 output_data,
@@ -68,16 +70,18 @@ def main():
                 width=120
             )
 
-        print(f"メタ情報の抽出が完了しました: {args.output}")
-        print(f"シリーズ: {metadata.title}")
-        print(f"エピソード数: {len(metadata.episodes)}")
-        print(f"あらすじ: {'含む' if not args.no_synopsis else '含まない'}")
+        print(f"\nメタ情報の抽出が正常に完了しました: {args.output}")
+        print(f"シリーズ名: {metadata.title}")
+        print(f"総話数    : {len(metadata.episodes)}")
+        print(f"あらすじ  : {'取得済み' if not args.no_synopsis else 'なし'}")
 
     except KeyboardInterrupt:
-        print("\n処理が中断されました")
+        print("\nユーザーによって中断されました。")
         sys.exit(1)
     except Exception as e:
         print(f"エラーが発生しました: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
 
 

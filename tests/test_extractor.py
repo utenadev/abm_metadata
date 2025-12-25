@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Basic tests for the metadata extractor
+メタデータ抽出機能の基本テスト
 """
 
 import pytest
@@ -9,41 +9,41 @@ from abema_metadata.models import SeriesMetadata, EpisodeMetadata
 
 
 def test_extractor_initialization():
-    """Test that extractor initializes correctly"""
+    """エクストラクターの初期化テスト"""
     extractor = AbemaMetadataExtractor()
     assert extractor.user_agent is not None
     assert isinstance(extractor.user_agent, str)
 
 
 def test_extractor_with_custom_user_agent():
-    """Test extractor with custom user agent"""
+    """カスタムユーザーエージェントを使用した初期化テスト"""
     custom_ua = "CustomUserAgent/1.0"
     extractor = AbemaMetadataExtractor(user_agent=custom_ua)
     assert extractor.user_agent == custom_ua
 
 
 def test_data_models():
-    """Test that data models work correctly"""
-    # Test EpisodeMetadata
+    """データモデルの動作テスト"""
+    # EpisodeMetadata のテスト
     episode = EpisodeMetadata(
         number=1,
-        title="Test Episode",
-        synopsis="This is a test",
+        title="テストエピソード",
+        synopsis="これはテストです",
         url="https://example.com/episode/1"
     )
     assert episode.number == 1
-    assert episode.title == "Test Episode"
-    assert episode.synopsis == "This is a test"
+    assert episode.title == "テストエピソード"
+    assert episode.synopsis == "これはテストです"
     assert episode.url == "https://example.com/episode/1"
 
-    # Test SeriesMetadata
+    # SeriesMetadata のテスト
     series = SeriesMetadata(
-        title="Test Series",
+        title="テストシリーズ",
         source_url="https://example.com/series",
         extraction_date="2024-02-20",
         episodes=[episode]
     )
-    assert series.title == "Test Series"
+    assert series.title == "テストシリーズ"
     assert series.source_url == "https://example.com/series"
     assert series.extraction_date == "2024-02-20"
     assert len(series.episodes) == 1
@@ -51,49 +51,51 @@ def test_data_models():
 
 
 def test_fetch_page_basic():
-    """Test basic page fetching functionality"""
+    """基本的なページ取得機能のテスト（ネットワーク環境に依存）"""
     extractor = AbemaMetadataExtractor()
     
-    # Test with a known URL (this might fail in CI, but should work locally)
+    # 実際のURLでテスト（CI環境等で失敗する可能性があるためスキップ可能に）
     try:
         content = extractor.fetch_page("https://abema.tv/video/title/26-249")
         assert content is not None
         assert isinstance(content, str)
         assert len(content) > 0
     except Exception as e:
-        # If network is unavailable, we can't test this
-        pytest.skip(f"Network unavailable: {e}")
+        pytest.skip(f"ネットワーク未接続またはアクセス不可: {e}")
 
 
 def test_extract_series_title_with_mock():
-    """Test series title extraction with mock data"""
+    """モックデータを使用したシリーズタイトル抽出テスト"""
     extractor = AbemaMetadataExtractor()
     
-    # Mock HTML content with series title
+    # シリーズタイトルを含むモックHTML（BreadcrumbList 構造）
     mock_content = '''
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-            {
-                "@type": "ListItem",
-                "position": 1,
-                "name": "ホーム"
-            },
-            {
-                "@type": "ListItem",
-                "position": 2,
-                "name": "アニメ"
-            },
-            {
-                "@type": "ListItem",
-                "position": 3,
-                "name": "テストシリーズ"
-            }
-        ]
-    }
-    </script>
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "ホーム",
+            "item": "https://abema.tv/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "アニメ",
+            "item": "https://abema.tv/video/genre/anime"
+        },
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "テストシリーズ",
+            "item": "https://abema.tv/video/title/test-series"
+        }
+    ]
+}
+</script>
     '''
     
     title = extractor.extract_series_title(mock_content)
@@ -101,10 +103,10 @@ def test_extract_series_title_with_mock():
 
 
 def test_extract_episodes_with_mock():
-    """Test episode extraction with mock data"""
+    """モックデータを使用したエピソード抽出テスト"""
     extractor = AbemaMetadataExtractor()
     
-    # Mock HTML content with episode data
+    # エピソードデータを含むモックHTML
     mock_content = '''
     <script type="application/ld+json">
     {
@@ -133,10 +135,10 @@ def test_extract_episodes_with_mock():
 
 
 def test_generate_episode_id():
-    """Test episode ID generation"""
+    """エピソードID生成のテスト"""
     extractor = AbemaMetadataExtractor()
     
-    # Test with valid series URL
+    # 正当なシリーズURLの場合
     episode_id = extractor._generate_episode_id(
         "https://abema.tv/video/programs/test-1",
         "https://abema.tv/video/title/test-series",
@@ -144,7 +146,7 @@ def test_generate_episode_id():
     )
     assert episode_id == "test-series_s1_p1"
     
-    # Test with invalid series URL
+    # 不正なシリーズURLの場合
     episode_id = extractor._generate_episode_id(
         "https://abema.tv/video/programs/test-1",
         "https://invalid.url",

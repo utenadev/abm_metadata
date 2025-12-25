@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-AbemaTV Metadata Extractor - Main Script
+AbemaTV メタ情報抽出ツール - メインスクリプト
 
-Extracts metadata (title, episode info, synopsis) from AbemaTV anime/drama pages
-for use with video file metadata updates.
+AbemaTVのアニメやドラマのページから、タイトル、エピソード情報、あらすじなどを抽出し、
+動画ファイルのメタデータ更新等に利用可能な形式で保存します。
 """
 
 from abema_metadata.cli import main
